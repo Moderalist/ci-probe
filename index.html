@@ -1,0 +1,7 @@
+<!doctype html><meta charset=utf-8><title>probe</title>
+<style>body{font:14px sans-serif;margin:0}#d{height:600px;overflow:auto}.r{padding:2px 8px;border-bottom:1px solid #eee;min-height:18px}</style>
+<div id=d></div>
+<script>
+const d=document.getElementById('d');
+for(let i=0;i<2000;i++){const r=document.createElement('div');r.className='r';r.contentEditable='true';r.textContent='row '+i+' lorem ipsum dolor sit amet';d.appendChild(r)}
+</script>

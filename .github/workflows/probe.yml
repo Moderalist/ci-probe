@@ -1,0 +1,27 @@
+name: probe
+on: workflow_dispatch
+jobs:
+  probe:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: macos-latest, shard: 1}
+          - {os: macos-latest, shard: 2}
+          - {os: macos-latest, shard: 3}
+          - {os: macos-latest, shard: 4}
+          - {os: macos-latest, shard: 5}
+          - {os: ubuntu-latest, shard: 1}
+    steps:
+      - run: date -u +"start %H:%M:%S"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - run: |
+          echo "cpus: $(sysctl -n hw.ncpu 2>/dev/null || nproc)"
+          npm install --no-audit --no-fund
+          s=$(date +%s); npx playwright install webkit --with-deps 2>&1 | tail -2; echo "webkit install s: $(( $(date +%s)-s ))"
+          s=$(date +%s); node bench.mjs; echo "bench wall s: $(( $(date +%s)-s ))"
+          s=$(date +%s); npx playwright test --shard=${{ matrix.shard }}/5 --workers=3 | tail -3; echo "shard s: $(( $(date +%s)-s ))"
+          if [ "${{ matrix.shard }}" = 1 ]; then s=$(date +%s); npx playwright test --workers=3 | tail -3; echo "full suite workers=3 s: $(( $(date +%s)-s ))"; fi
